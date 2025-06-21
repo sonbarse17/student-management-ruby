@@ -1,0 +1,71 @@
+<%= form_with model: student, local: true, class: "row g-3" do |form| %>
+  <% if student.errors.any? %>
+    <div id="error_explanation" class="col-12">
+      <div class="alert alert-danger">
+        <h4><%= pluralize(student.errors.count, "error") %> prohibited this student from being saved:</h4>
+        <ul class="mb-0">
+          <% student.errors.each do |error| %>
+            <li><%= error.full_message %></li>
+          <% end %>
+        </ul>
+      </div>
+    </div>
+  <% end %>
+
+  <div class="col-md-6">
+    <%= form.label :first_name, class: "form-label" %>
+    <%= form.text_field :first_name, class: "form-control" %>
+  </div>
+
+  <div class="col-md-6">
+    <%= form.label :last_name, class: "form-label" %>
+    <%= form.text_field :last_name, class: "form-control" %>
+  </div>
+
+  <div class="col-md-6">
+    <%= form.label :email, class: "form-label" %>
+    <%= form.email_field :email, class: "form-control" %>
+  </div>
+
+  <div class="col-md-6">
+    <%= form.label :phone, class: "form-label" %>
+    <%= form.telephone_field :phone, class: "form-control" %>
+  </div>
+
+  <div class="col-md-6">
+    <%= form.label :date_of_birth, class: "form-label" %>
+    <%= form.date_field :date_of_birth, class: "form-control" %>
+  </div>
+
+  <div class="col-md-6">
+    <%= form.label :grade, class: "form-label" %>
+    <%= form.select :grade, 
+        options_for_select([
+          ['Kindergarten', 'K'],
+          ['1st Grade', '1'],
+          ['2nd Grade', '2'],
+          ['3rd Grade', '3'],
+          ['4th Grade', '4'],
+          ['5th Grade', '5'],
+          ['6th Grade', '6'],
+          ['7th Grade', '7'],
+          ['8th Grade', '8'],
+          ['9th Grade', '9'],
+          ['10th Grade', '10'],
+          ['11th Grade', '11'],
+          ['12th Grade', '12']
+        ], student.grade), 
+        { prompt: 'Select Grade' }, 
+        { class: "form-select" } %>
+  </div>
+
+  <div class="col-12">
+    <%= form.label :address, class: "form-label" %>
+    <%= form.text_area :address, rows: 3, class: "form-control" %>
+  </div>
+
+  <div class="col-12">
+    <%= form.submit class: "btn btn-primary" %>
+    <%= link_to 'Cancel', students_path, class: "btn btn-secondary" %>
+  </div>
+<% end %>

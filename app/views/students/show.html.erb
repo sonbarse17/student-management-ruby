@@ -1,0 +1,50 @@
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h1><%= @student.full_name %></h1>
+  <div>
+    <%= link_to "Edit", edit_student_path(@student), class: "btn btn-primary" %>
+    <%= link_to "Back to Students", students_path, class: "btn btn-secondary" %>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-8">
+    <div class="card">
+      <div class="card-header">
+        <h3>Student Information</h3>
+      </div>
+      <div class="card-body">
+        <div class="row mb-3">
+          <div class="col-sm-3"><strong>Full Name:</strong></div>
+          <div class="col-sm-9"><%= @student.full_name %></div>
+        </div>
+        
+        <div class="row mb-3">
+          <div class="col-sm-3"><strong>Email:</strong></div>
+          <div class="col-sm-9"><%= @student.email %></div>
+        </div>
+        
+        <div class="row mb-3">
+          <div class="col-sm-3"><strong>Phone:</strong></div>
+          <div class="col-sm-9"><%= @student.phone %></div>
+        </div>
+        
+        <div class="row mb-3">
+          <div class="col-sm-3"><strong>Date of Birth:</strong></div>
+          <div class="col-sm-9"><%= @student.date_of_birth.strftime("%B %d, %Y") %> (<%= @student.age %> years old)</div>
+        </div>
+        
+        <div class="row mb-3">
+          <div class="col-sm-3"><strong>Grade:</strong></div>
+          <div class="col-sm-9"><%= @student.grade %></div>
+        </div>
+        
+        <% if @student.address.present? %>
+          <div class="row mb-3">
+            <div class="col-sm-3"><strong>Address:</strong></div>
+            <div class="col-sm-9"><%= simple_format(@student.address) %></div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
