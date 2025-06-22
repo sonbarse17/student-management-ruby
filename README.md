@@ -123,6 +123,45 @@ docker run -d --name rails-app -p 3000:3000 --link postgres-db:db student-app
 - `grade` (string)
 - `address` (text)
 
+## Kubernetes Deployment
+
+### Prerequisites
+- Kubernetes cluster
+- kubectl configured
+- Docker images available:
+  - `sonbarse17/ruby-app:latest`
+  - `sonbarse17/ruby-db:latest`
+
+### Setup
+1. **Create Rails master key secret**
+   ```bash
+   kubectl create secret generic rails-master-key --from-file=master.key=config/master.key
+   ```
+
+2. **Deploy to Kubernetes**
+   ```bash
+   kubectl apply -f k8s/db-pvc.yml
+   kubectl apply -f k8s/db-svc.yml
+   kubectl apply -f k8s/db-deploy.yml
+   kubectl apply -f k8s/app-svc.yml
+   kubectl apply -f k8s/app-deployment.yml
+   kubectl apply -f k8s/ingress.yml
+   ```
+
+3. **Verify deployment**
+   ```bash
+   kubectl get pods
+   kubectl get services
+   kubectl get ingress
+   ```
+
+### K8s Components
+- **Database**: PostgreSQL StatefulSet with persistent storage (30Gi)
+- **Application**: Rails Deployment with 3 replicas
+- **Services**: ClusterIP services for internal communication
+- **Ingress**: NGINX ingress for external access
+- **Storage**: PersistentVolumeClaim for database data
+
 ## API Endpoints
 
 - `GET /` - List all students

@@ -3,10 +3,11 @@ kind: StatefulSet
 metadata:
   name: student-app-db
 spec:
+  serviceName: db-service
   selector:
     matchLabels:
       app: student-app-db
-  replicas: 3 
+  replicas: 1
   template:
     metadata:
       labels:
@@ -19,7 +20,7 @@ spec:
         - containerPort: 5432
         env:
         - name: POSTGRES_DB
-          value: student_management_development
+          value: student_management_production
         - name: POSTGRES_USER
           value: postgres
         - name: POSTGRES_PASSWORD
