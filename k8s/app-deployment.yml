@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: student-app-container
-        image: sonbarse17/
+        image: sonbarse17/ruby-app:latest
         ports:
         - containerPort: 3000
         env:
@@ -28,3 +28,10 @@ spec:
           value: postgres
         - name: RAILS_ENV
           value: production
+        - name: RAILS_LOG_TO_STDOUT
+          value: "true"
+        - name: RAILS_MASTER_KEY
+          valueFrom:
+            secretKeyRef:
+              name: rails-master-key
+              key: master.key

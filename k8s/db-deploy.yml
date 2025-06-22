@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: student-app-db-container
-        image: sonbarse17/
+        image: sonbarse17/ruby-db:latest
         ports:
         - containerPort: 5432
         env:
@@ -24,3 +24,11 @@ spec:
           value: postgres
         - name: POSTGRES_PASSWORD
           value: postgres
+        volumeMounts:
+        - name: psql-storage 
+          mountPath: /var/lib/postgresql/data
+          subPath: postgres
+      volumes:
+        - name: psql-storage
+          persistentVolumeClaim:
+            claimName: psql-pvc
