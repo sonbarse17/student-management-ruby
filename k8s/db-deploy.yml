@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: student-app-db
+spec:
+  selector:
+    matchLabels:
+      app: student-app-db
+  replicas: 3 
+  template:
+    metadata:
+      labels:
+        app: student-app-db
+    spec:
+      containers:
+      - name: student-app-db-container
+        image: sonbarse17/
+        ports:
+        - containerPort: 5432
