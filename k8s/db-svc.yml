@@ -4,8 +4,9 @@ metadata:
   name: my-service
 spec:
   selector:
-    app.kubernetes.io/name: MyApp
+    app.kubernetes.io/name: student-app-db
   ports:
     - protocol: TCP
-      port: 80
-      targetPort: 9376
+      port: 5432
+      targetPort: 5432
+  type: ClusterIP
