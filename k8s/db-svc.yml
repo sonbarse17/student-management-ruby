@@ -4,7 +4,7 @@ metadata:
   name: db-service
 spec:
   selector:
-    app.kubernetes.io/name: student-app-db
+    app: student-app-db
   ports:
     - protocol: TCP
       port: 5432
