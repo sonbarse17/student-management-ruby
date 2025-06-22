@@ -19,11 +19,11 @@ jobs:
       - name: Log in to Docker Hub
         run: echo "${{ secrets.DOCKERHUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
 
-      - name: Build Docker image for application
+      - name: Build Docker image for Ruby application
         run: |
           docker build -f Dockerfile.app -t $DOCKERHUB_USERNAME/ruby-app:latest .
 
-      - name: Build Docker image for Database
+      - name: Build Docker image for Postgres Database
         run: |
           docker build -f Dockerfile.db -t $DOCKERHUB_USERNAME/ruby-db:latest .
 
