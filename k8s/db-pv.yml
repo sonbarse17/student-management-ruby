@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: db-pv
+spec:
+  storageClassName: "standard-rwo"
+  claimRef:
+    name: foo-pvc

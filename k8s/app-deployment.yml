@@ -19,3 +19,12 @@ spec:
         image: sonbarse17/
         ports:
         - containerPort: 3000
+        env:
+        - name: DATABASE_HOST
+          value: db
+        - name: DATABASE_USERNAME
+          value: postgres
+        - name: DATABASE_PASSWORD
+          value: postgres
+        - name: RAILS_ENV
+          value: production
