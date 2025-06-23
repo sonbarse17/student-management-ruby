@@ -27,3 +27,9 @@ jobs:
 
       - name: Terraform Apply
         run: terraform apply -auto-approve
+
+#Note: Uncomment the following lines to configure kubectl after applying Terraform
+#gcloud container clusters get-credentials CLUSTER_NAME \
+#  --region REGION \
+#  --project YOUR_PROJECT_ID
+
