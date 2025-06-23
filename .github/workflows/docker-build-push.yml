@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - main
+    paths-ignore:
+      - 'k8s/**'
+      - 'terraform/**'
 
 env:
   DOCKERHUB_USERNAME: sonbarse17
