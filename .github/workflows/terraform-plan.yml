@@ -3,11 +3,9 @@ name: Terraform Plan (GCP)
 on:
   push:
     branches: [main]
-    paths:
-        - 'terraform/**'
+
   pull_request:
-    paths:
-      - 'terraform/**'
+
 jobs:
   terraform:
     runs-on: ubuntu-latest
