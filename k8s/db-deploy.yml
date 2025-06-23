@@ -29,7 +29,12 @@ spec:
         - name: psql-storage 
           mountPath: /var/lib/postgresql/data
           subPath: postgres
-      volumes:
-        - name: psql-storage
-          persistentVolumeClaim:
-            claimName: psql-pvc
+  volumeClaimTemplates:
+  - metadata:
+      name: psql-storage
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      resources:
+        requests:
+          storage: 30Gi
+      storageClassName: standard
