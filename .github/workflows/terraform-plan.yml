@@ -3,7 +3,7 @@ name: Terraform Plan (GCP)
 on:
   push:
     branches: [main]
-      paths:
+    paths:
         - 'terraform/**'
   pull_request:
     paths:
