@@ -4,8 +4,6 @@ metadata:
   name: rails-ingress
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
-    nginx.ingress.kubernetes.io/default-backend: app-service
-    nginx.ingress.kubernetes.io/backend-protocol: "HTTP"
 spec:
   rules:
     - http:
