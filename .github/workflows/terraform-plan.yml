@@ -2,7 +2,12 @@ name: Terraform Plan (GCP)
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
+    paths-ignore:
+      - 'k8s/**'
+      - 'terraform/**'
+      - '.github/**'
 
   pull_request:
 

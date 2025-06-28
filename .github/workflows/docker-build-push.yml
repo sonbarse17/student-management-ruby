@@ -7,6 +7,7 @@ on:
     paths-ignore:
       - 'k8s/**'
       - 'terraform/**'
+      - '.github/**'
 
 env:
   DOCKERHUB_USERNAME: sonbarse17
