@@ -123,6 +123,70 @@ docker run -d --name rails-app -p 3000:3000 --link postgres-db:db student-app
 - `grade` (string)
 - `address` (text)
 
+## CI/CD Architecture
+
+![CI/CD Pipeline Architecture](docs/ci-cd-pipeline.svg)
+
+The CI/CD pipeline consists of the following workflows:
+
+1. **Terraform Plan**: Validates infrastructure changes
+2. **Terraform Apply**: Creates/updates GKE infrastructure
+3. **K8s Deploy**: Deploys application to Kubernetes (triggers after successful Terraform Apply)
+4. **Docker Build & Push**: Builds and pushes container images
+5. **Terraform Destroy**: Removes infrastructure
+6. **Cleanup Workflows**: Maintains workflow history (triggers after successful Terraform Destroy)
+
+## GitHub Deployment
+
+### Required GitHub Secrets
+
+1. **GCP Service Account Key**
+   - Secret Name: `GCP_SERVICE_ACCOUNT_KEY`
+   - Description: JSON key file content from Google Cloud Service Account
+   - How to obtain:
+     1. Go to Google Cloud Console
+     2. Navigate to IAM & Admin > Service Accounts
+     3. Create a new service account or select existing
+     4. Create new key (JSON format)
+     5. Copy entire content of the JSON file
+
+2. **Rails Master Key**
+   - Secret Name: `RAILS_MASTER_KEY`
+   - Description: Rails master key for decrypting credentials
+   - Location: Found in `config/master.key`
+
+### Required Environment Variables
+
+1. **Google Cloud Configuration**
+   - `GCP_PROJECT_ID`: Your Google Cloud project ID
+   - `GCP_REGION`: Desired GCP region (e.g., us-central1)
+   - `GCP_ZONE`: Desired GCP zone (e.g., us-central1-a)
+
+2. **Kubernetes Cluster Configuration**
+   - `GKE_CLUSTER_NAME`: Name for your GKE cluster
+   - `GKE_MACHINE_TYPE`: Machine type (e.g., e2-medium)
+   - `GKE_NUM_NODES`: Number of nodes (e.g., 2)
+
+### Deployment Workflow
+
+1. **Infrastructure Deployment**
+   - Trigger the "Terraform Apply" workflow manually
+   - This creates GKE cluster and necessary infrastructure
+   - Wait for successful completion
+
+2. **Application Deployment**
+   - The "K8s Deploy" workflow triggers automatically
+   - Deploys application components to GKE cluster
+   - Creates necessary Kubernetes resources
+
+3. **Access Application**
+   - Get the external IP from workflow logs
+   - Access application at `http://<EXTERNAL-IP>`
+
+4. **Cleanup**
+   - Run "Terraform Destroy" workflow to remove infrastructure
+   - Cleanup workflow runs automatically after destroy
+
 ## Kubernetes Deployment
 
 ### Prerequisites
