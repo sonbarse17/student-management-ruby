@@ -35,8 +35,25 @@ jobs:
             -backend-config="bucket=$PROJECT_ID-terraform-state" \
             -backend-config="prefix=gke/state"
 
+      - name: Import Existing Resources
+        run: |
+          PROJECT_ID=$(gcloud config get-value project)
+          # Import cluster if it exists and not in state
+          if gcloud container clusters describe my-gke-cluster --region=us-central1 --project=$PROJECT_ID >/dev/null 2>&1; then
+            terraform import google_container_cluster.primary projects/$PROJECT_ID/locations/us-central1/clusters/my-gke-cluster || true
+            terraform import google_container_node_pool.primary_nodes projects/$PROJECT_ID/locations/us-central1/clusters/my-gke-cluster/nodePools/primary-node-pool || true
+          fi
+
       - name: Terraform Plan
         run: terraform plan -out=tfplan
 
       - name: Terraform Destroy
-        run: terraform destroy -auto-approve
+        run: |
+          terraform destroy -auto-approve
+          
+          # Fallback: Delete cluster directly if still exists
+          PROJECT_ID=$(gcloud config get-value project)
+          if gcloud container clusters describe my-gke-cluster --region=us-central1 --project=$PROJECT_ID >/dev/null 2>&1; then
+            echo "Cluster still exists, deleting directly..."
+            gcloud container clusters delete my-gke-cluster --region=us-central1 --project=$PROJECT_ID --quiet
+          fi
