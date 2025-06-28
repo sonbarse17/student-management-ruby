@@ -32,3 +32,15 @@ spec:
           value: development
         - name: RAILS_LOG_TO_STDOUT
           value: "true"
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 3000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 3000
+          initialDelaySeconds: 60
+          periodSeconds: 30
