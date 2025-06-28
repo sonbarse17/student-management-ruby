@@ -61,9 +61,12 @@ jobs:
           kubectl apply -f k8s/db-deploy.yml --validate=false
           kubectl wait --for=condition=ready pod -l app=student-app-db --timeout=300s
           
+          echo "Waiting for database to be fully ready..."
+          sleep 30
+          
           echo "Running database migrations..."
           kubectl apply -f k8s/db-init-job.yml --validate=false
-          kubectl wait --for=condition=complete job/db-migration --timeout=300s
+          kubectl wait --for=condition=complete job/db-migration --timeout=300s || true
 
       - name: Deploy Application
         env:

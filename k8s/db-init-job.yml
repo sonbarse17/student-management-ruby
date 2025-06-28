@@ -8,7 +8,16 @@ spec:
       containers:
       - name: db-migrate
         image: sonbarse17/ruby-app:latest
-        command: ["rails", "db:create", "db:migrate", "db:seed"]
+        command: ["/bin/sh", "-c"]
+        args:
+        - |
+          echo "Waiting for database connection..."
+          until pg_isready -h db-service -p 5432 -U postgres; do
+            echo "Database not ready, waiting..."
+            sleep 5
+          done
+          echo "Database ready, running migrations..."
+          rails db:create db:migrate db:seed
         env:
         - name: DATABASE_HOST
           value: db-service
@@ -20,5 +29,7 @@ spec:
           value: "5432"
         - name: RAILS_ENV
           value: development
+        - name: PGPASSWORD
+          value: postgres
       restartPolicy: OnFailure
   backoffLimit: 3
