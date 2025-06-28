@@ -1,237 +1,264 @@
-# Student Management System
+# Student Management System - Rails on GKE
 
-A Ruby on Rails web application for managing student records with full CRUD operations.
+A Ruby on Rails application deployed on Google Kubernetes Engine (GKE) with complete CI/CD pipeline using GitHub Actions, Terraform, and ArgoCD.
 
-## Description
+## 🏗️ Architecture
 
-This application allows users to manage student information including personal details, contact information, and academic data. Students can be created, viewed, updated, and deleted through a web interface.
+![Architecture](docs/architecture.md)
 
-## Tech Stack
+## 🚀 Features
 
-- **Backend**: Ruby 3.0.2, Rails 7.1.5
-- **Database**: PostgreSQL
-- **Frontend**: HTML/ERB templates, CSS, JavaScript (Stimulus, Turbo)
-- **Web Server**: Puma
-- **Asset Pipeline**: Sprockets
+- **Rails 7.1.5** with PostgreSQL database
+- **Kubernetes deployment** on Google Cloud GKE
+- **CI/CD pipeline** with GitHub Actions
+- **Infrastructure as Code** with Terraform
+- **Container orchestration** with Docker
+- **GitOps ready** with ArgoCD support
+- **Auto-scaling** and high availability
+- **Persistent storage** for database
 
-## Project Structure
+## 📋 Prerequisites
 
-```
-student-management-ruby/
-├── app/
-│   ├── controllers/          # Application controllers
-│   │   └── students_controller.rb
-│   ├── models/              # Data models
-│   │   └── student.rb
-│   ├── views/               # View templates
-│   │   └── students/        # Student-related views
-│   └── assets/              # CSS, JS, images
-├── config/
-│   ├── database.yml         # Database configuration
-│   ├── routes.rb           # Application routes
-│   └── puma.rb             # Web server config
-├── db/
-│   ├── migrate/            # Database migrations
-│   └── schema.rb           # Database schema
-├── Dockerfile.app          # Application container
-├── Dockerfile.db           # Database container
-└── docker-compose.yml      # Container orchestration
-```
+### Required Accounts
+- Google Cloud Platform account
+- Docker Hub account
+- GitHub repository
 
-## Features
+### Required Tools (for local development)
+- Docker
+- kubectl
+- gcloud CLI
+- Terraform
 
-- **Student Management**: Create, read, update, delete student records
-- **Data Validation**: Email uniqueness, required fields, format validation
-- **Student Attributes**: Name, email, phone, date of birth, grade, address
-- **Age Calculation**: Automatic age calculation from date of birth
-- **Responsive Interface**: Clean web interface for data management
+## ⚙️ Setup Instructions
 
-## Ports Used
-
-- **Application**: 3000 (Rails server)
-- **Database**: 5432 (PostgreSQL)
-
-## Local Development Setup
-
-### Prerequisites
-- Ruby 3.0.2
-- PostgreSQL
-- Bundler gem
-
-### Installation Steps
-
-1. **Clone the repository**
-   ```bash
-   git clone <repository-url>
-   cd student-management-ruby
-   ```
-
-2. **Install dependencies**
-   ```bash
-   bundle install
-   ```
-
-3. **Setup database**
-   ```bash
-   rails db:create
-   rails db:migrate
-   rails db:seed
-   ```
-
-4. **Start the server**
-   ```bash
-   rails server
-   ```
-
-5. **Access the application**
-   - Open browser to `http://localhost:3000`
-
-## Docker Deployment
-
-### Quick Start
+### 1. Fork/Clone Repository
 ```bash
-docker-compose up --build
+git clone https://github.com/your-username/student-management-ruby.git
+cd student-management-ruby
 ```
 
-### Manual Container Build
+### 2. Configure GitHub Secrets
+
+Go to your GitHub repository → Settings → Secrets and variables → Actions
+
+Add these secrets:
+
+| Secret Name | Description | Example |
+|-------------|-------------|---------|
+| `GCP_SERVICE_ACCOUNT_KEY` | GCP service account JSON key | `{"type": "service_account"...}` |
+| `DOCKERHUB_USERNAME` | Docker Hub username | `your-dockerhub-username` |
+| `DOCKERHUB_PASSWORD` | Docker Hub password/token | `your-dockerhub-password` |
+
+### 3. Create GCP Service Account
+
 ```bash
-# Build application container
-docker build -f Dockerfile.app -t student-app .
+# Create service account
+gcloud iam service-accounts create github-actions \
+    --display-name="GitHub Actions"
 
-# Build database container
-docker build -f Dockerfile.db -t student-db .
+# Grant necessary permissions
+gcloud projects add-iam-policy-binding YOUR_PROJECT_ID \
+    --member="serviceAccount:github-actions@YOUR_PROJECT_ID.iam.gserviceaccount.com" \
+    --role="roles/container.admin"
 
-# Run containers
-docker run -d --name postgres-db student-db
-docker run -d --name rails-app -p 3000:3000 --link postgres-db:db student-app
+gcloud projects add-iam-policy-binding YOUR_PROJECT_ID \
+    --member="serviceAccount:github-actions@YOUR_PROJECT_ID.iam.gserviceaccount.com" \
+    --role="roles/storage.admin"
+
+gcloud projects add-iam-policy-binding YOUR_PROJECT_ID \
+    --member="serviceAccount:github-actions@YOUR_PROJECT_ID.iam.gserviceaccount.com" \
+    --role="roles/iam.serviceAccountUser"
+
+# Create and download key
+gcloud iam service-accounts keys create key.json \
+    --iam-account=github-actions@YOUR_PROJECT_ID.iam.gserviceaccount.com
 ```
+
+### 4. Update Configuration
+
+Edit these files with your values:
+- `terraform/gke/terraform.tfvars` - Update project ID and region
+- `.github/workflows/docker-build-push.yml` - Update Docker Hub username
+
+## 🔄 Deployment Pipeline
+
+### Pipeline Overview
+```
+Code Push → Docker Build → Terraform Plan → Manual Deploy → ArgoCD
+```
+
+### Available Workflows
+
+| Workflow | Trigger | Purpose |
+|----------|---------|---------|
+| **Docker Build & Push** | Push to main | Build and push container images |
+| **Terraform Plan** | Push/PR | Preview infrastructure changes |
+| **Terraform Apply** | Manual | Create GKE cluster |
+| **Deploy to Kubernetes** | Auto after Terraform Apply | Deploy application |
+| **Install ArgoCD** | Manual | Install ArgoCD with Helm |
+| **Terraform Destroy** | Manual | Destroy infrastructure |
+| **Cleanup Workflows** | Auto after destroy | Clean old workflow runs |
+
+### Deployment Steps
+
+#### Step 1: Build and Push Images
+Push code to main branch:
+```bash
+git add .
+git commit -m "Deploy to GKE"
+git push origin main
+```
+This triggers Docker build and push automatically.
+
+#### Step 2: Create Infrastructure
+1. Go to **Actions** tab in GitHub
+2. Run **"Terraform Apply"** workflow
+3. Wait for GKE cluster creation (~10 minutes)
+
+#### Step 3: Deploy Application
+1. **"Deploy to Kubernetes"** runs automatically after Terraform Apply
+2. Or run manually from Actions tab
+3. Wait for deployment completion (~5 minutes)
+
+#### Step 4: Install ArgoCD (Optional)
+1. Run **"Install ArgoCD"** workflow manually
+2. Get ArgoCD URL and credentials from output
+
+#### Step 5: Access Application
+- **Main App**: Check workflow output for external IP
+- **ArgoCD**: Use LoadBalancer IP from ArgoCD installation
+
+## 🌐 Accessing the Application
+
+### Main Application
+```
+http://EXTERNAL_IP/
+```
+The external IP is displayed in the deployment workflow output.
+
+### ArgoCD (if installed)
+```
+https://ARGOCD_EXTERNAL_IP/
+Username: admin
+Password: [from workflow output]
+```
+
+## 🗂️ Project Structure
+
+```
+├── app/                    # Rails application code
+├── config/                 # Rails configuration
+├── db/                     # Database migrations and seeds
+├── k8s/                    # Kubernetes manifests
+│   ├── app-deployment.yml  # Rails app deployment
+│   ├── app-svc.yml        # Rails app service
+│   ├── db-deploy.yml      # PostgreSQL StatefulSet
+│   ├── db-svc.yml         # Database service
+│   ├── db-init-job.yml    # Database migration job
+│   └── ingress.yml        # GCE Ingress
+├── terraform/gke/         # Terraform infrastructure code
+├── .github/workflows/     # GitHub Actions pipelines
+├── Dockerfile.app         # Rails app container
+├── Dockerfile.db          # PostgreSQL container
+└── docs/                  # Documentation
+```
+
+## 🔧 Configuration
 
 ### Environment Variables
-- `DATABASE_HOST`: Database hostname (default: localhost)
-- `DATABASE_USERNAME`: Database user (default: postgres)
-- `DATABASE_PASSWORD`: Database password (default: postgres)
-- `RAILS_ENV`: Rails environment (development/production)
+The application uses these environment variables:
 
-## Database Schema
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `DATABASE_HOST` | PostgreSQL host | `db-service` |
+| `DATABASE_USERNAME` | Database username | `postgres` |
+| `DATABASE_PASSWORD` | Database password | `postgres` |
+| `DATABASE_PORT` | Database port | `5432` |
+| `RAILS_ENV` | Rails environment | `development` |
 
-**Students Table:**
-- `first_name` (string, required)
-- `last_name` (string, required)
-- `email` (string, unique, required)
-- `phone` (string)
-- `date_of_birth` (date)
-- `grade` (string)
-- `address` (text)
+### Resource Limits
+- **Rails App**: 500m CPU, 512Mi Memory
+- **PostgreSQL**: 500m CPU, 1Gi Memory
+- **Storage**: 30Gi persistent volume
 
-## CI/CD Architecture
+## 🧹 Cleanup
 
-![CI/CD Pipeline Architecture](./docs/ci-cd-pipeline.svg)
+### Destroy Everything
+1. Run **"Terraform Destroy"** workflow
+2. This will:
+   - Delete all Kubernetes resources
+   - Destroy GKE cluster
+   - Preserve Terraform state bucket
+   - Trigger workflow cleanup
 
-The CI/CD pipeline consists of the following workflows:
+### Manual Cleanup
+```bash
+# Delete specific resources
+kubectl delete namespace default --cascade
+kubectl delete namespace argocd --cascade
 
-1. **Terraform Plan**: Validates infrastructure changes
-2. **Terraform Apply**: Creates/updates GKE infrastructure
-3. **K8s Deploy**: Deploys application to Kubernetes (triggers after successful Terraform Apply)
-4. **Docker Build & Push**: Builds and pushes container images
-5. **Terraform Destroy**: Removes infrastructure
-6. **Cleanup Workflows**: Maintains workflow history (triggers after successful Terraform Destroy)
+# Delete cluster directly
+gcloud container clusters delete my-gke-cluster --region=us-central1
+```
 
-## GitHub Deployment
+## 🐛 Troubleshooting
 
-### Required GitHub Secrets
+### Common Issues
 
-1. **GCP Service Account Key**
-   - Secret Name: `GCP_SERVICE_ACCOUNT_KEY`
-   - Description: JSON key file content from Google Cloud Service Account
-   - How to obtain:
-     1. Go to Google Cloud Console
-     2. Navigate to IAM & Admin > Service Accounts
-     3. Create a new service account or select existing
-     4. Create new key (JSON format)
-     5. Copy entire content of the JSON file
+**1. Pipeline Fails with Permission Errors**
+- Check GCP service account has required roles
+- Verify GitHub secrets are set correctly
 
-2. **Rails Master Key**
-   - Secret Name: `RAILS_MASTER_KEY`
-   - Description: Rails master key for decrypting credentials
-   - Location: Found in `config/master.key`
+**2. Database Connection Issues**
+- Check if database pod is running: `kubectl get pods`
+- Verify service endpoints: `kubectl get svc`
 
-### Required Environment Variables
+**3. Ingress Not Getting External IP**
+- Wait 10-15 minutes for GCE load balancer
+- Check ingress status: `kubectl describe ingress rails-ingress`
 
-1. **Google Cloud Configuration**
-   - `GCP_PROJECT_ID`: Your Google Cloud project ID
-   - `GCP_REGION`: Desired GCP region (e.g., us-central1)
-   - `GCP_ZONE`: Desired GCP zone (e.g., us-central1-a)
+**4. ArgoCD Installation Fails**
+- Service account needs cluster admin permissions
+- Try manual installation with proper RBAC
 
-2. **Kubernetes Cluster Configuration**
-   - `GKE_CLUSTER_NAME`: Name for your GKE cluster
-   - `GKE_MACHINE_TYPE`: Machine type (e.g., e2-medium)
-   - `GKE_NUM_NODES`: Number of nodes (e.g., 2)
+### Useful Commands
+```bash
+# Check pod status
+kubectl get pods -o wide
 
-### Deployment Workflow
+# View pod logs
+kubectl logs -f deployment/student-app
 
-1. **Infrastructure Deployment**
-   - Trigger the "Terraform Apply" workflow manually
-   - This creates GKE cluster and necessary infrastructure
-   - Wait for successful completion
+# Check services
+kubectl get svc
 
-2. **Application Deployment**
-   - The "K8s Deploy" workflow triggers automatically
-   - Deploys application components to GKE cluster
-   - Creates necessary Kubernetes resources
+# Describe ingress
+kubectl describe ingress rails-ingress
 
-3. **Access Application**
-   - Get the external IP from workflow logs
-   - Access application at `http://<EXTERNAL-IP>`
+# Port forward for local access
+kubectl port-forward svc/app-service 3000:80
+```
 
-4. **Cleanup**
-   - Run "Terraform Destroy" workflow to remove infrastructure
-   - Cleanup workflow runs automatically after destroy
+## 📚 Additional Resources
 
-## Kubernetes Deployment
+- [Kubernetes Documentation](https://kubernetes.io/docs/)
+- [Google Kubernetes Engine](https://cloud.google.com/kubernetes-engine/docs)
+- [Terraform GCP Provider](https://registry.terraform.io/providers/hashicorp/google/latest/docs)
+- [ArgoCD Documentation](https://argo-cd.readthedocs.io/)
 
-### Prerequisites
-- Kubernetes cluster
-- kubectl configured
-- Docker images available:
-  - `sonbarse17/ruby-app:latest`
-  - `sonbarse17/ruby-db:latest`
+## 🤝 Contributing
 
-### Setup
-1. **Create Rails master key secret**
-   ```bash
-   kubectl create secret generic rails-master-key --from-file=master.key=config/master.key
-   ```
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test the deployment pipeline
+5. Submit a pull request
 
-2. **Deploy to Kubernetes**
-   ```bash
-   kubectl apply -f k8s/db-pvc.yml
-   kubectl apply -f k8s/db-svc.yml
-   kubectl apply -f k8s/db-deploy.yml
-   kubectl apply -f k8s/app-svc.yml
-   kubectl apply -f k8s/app-deployment.yml
-   kubectl apply -f k8s/ingress.yml
-   ```
+## 📄 License
 
-3. **Verify deployment**
-   ```bash
-   kubectl get pods
-   kubectl get services
-   kubectl get ingress
-   ```
+This project is licensed under the MIT License - see the LICENSE file for details.
 
-### K8s Components
-- **Database**: PostgreSQL StatefulSet with persistent storage (30Gi)
-- **Application**: Rails Deployment with 3 replicas
-- **Services**: ClusterIP services for internal communication
-- **Ingress**: NGINX ingress for external access
-- **Storage**: PersistentVolumeClaim for database data
+---
 
-## API Endpoints
-
-- `GET /` - List all students
-- `GET /students/:id` - Show student details
-- `GET /students/new` - New student form
-- `POST /students` - Create student
-- `GET /students/:id/edit` - Edit student form
-- `PATCH/PUT /students/:id` - Update student
-- `DELETE /students/:id` - Delete student
+**Built with ❤️ using Rails, Kubernetes, and Google Cloud Platform**

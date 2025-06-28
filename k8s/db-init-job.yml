@@ -12,7 +12,7 @@ spec:
         args:
         - |
           echo "Waiting for database connection..."
-          until pg_isready -h db-service -p 5432 -U postgres; do
+          until rails runner "ActiveRecord::Base.connection.execute('SELECT 1')" 2>/dev/null; do
             echo "Database not ready, waiting..."
             sleep 5
           done
