@@ -71,6 +71,6 @@ jobs:
           echo "\nIngress status and IP:"
           kubectl get ingress
           echo "\nWaiting for external IP (may take a few minutes)..."
-          kubectl wait --for=jsonpath='{.status.loadBalancer.ingress[0].ip}' ingress/student-app-ingress --timeout=300s
+          kubectl wait --for=jsonpath='{.status.loadBalancer.ingress[0].ip}' ingress/rails-ingress --timeout=300s
           echo "\nApplication is accessible at:"
-          echo "http://$(kubectl get ingress student-app-ingress -o jsonpath='{.status.loadBalancer.ingress[0].ip}')/"
+          echo "http://$(kubectl get ingress rails-ingress -o jsonpath='{.status.loadBalancer.ingress[0].ip}')/"
