@@ -43,6 +43,11 @@ jobs:
           echo "Cleaning up existing ArgoCD resources..."
           kubectl delete namespace argocd --ignore-not-found=true
           kubectl wait --for=delete namespace/argocd --timeout=60s || true
+          
+          echo "Cleaning up ArgoCD CRDs..."
+          kubectl delete crd applications.argoproj.io --ignore-not-found=true
+          kubectl delete crd applicationsets.argoproj.io --ignore-not-found=true
+          kubectl delete crd appprojects.argoproj.io --ignore-not-found=true
 
       - name: Install ArgoCD with Helm
         env:
