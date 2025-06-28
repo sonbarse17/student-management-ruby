@@ -52,7 +52,7 @@ jobs:
           PROJECT_ID=$(gcloud config get-value project)
           if gcloud container clusters describe my-gke-cluster --region=us-central1 --project=$PROJECT_ID >/dev/null 2>&1; then
             echo "Disabling deletion protection..."
-            gcloud container clusters update my-gke-cluster --region=us-central1 --project=$PROJECT_ID --no-enable-deletion-protection --quiet
+            gcloud container clusters update my-gke-cluster --region=us-central1 --project=$PROJECT_ID --deletion-protection=false --quiet
           fi
 
       - name: Terraform Destroy
