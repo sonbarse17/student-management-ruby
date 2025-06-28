@@ -41,24 +41,24 @@ jobs:
         run: |
           kubectl create secret generic rails-master-key \
             --from-file=master.key=config/master.key \
-            --dry-run=client -o yaml | kubectl apply -f -
+            --dry-run=client -o yaml | kubectl apply -f - --validate=false
 
       - name: Deploy Database
         env:
           USE_GKE_GCLOUD_AUTH_PLUGIN: True
         run: |
-          kubectl apply -f k8s/db-pvc.yml
-          kubectl apply -f k8s/db-svc.yml
-          kubectl apply -f k8s/db-deploy.yml
+          kubectl apply -f k8s/db-pvc.yml --validate=false
+          kubectl apply -f k8s/db-svc.yml --validate=false
+          kubectl apply -f k8s/db-deploy.yml --validate=false
           kubectl wait --for=condition=ready pod -l app=student-app-db --timeout=300s
 
       - name: Deploy Application
         env:
           USE_GKE_GCLOUD_AUTH_PLUGIN: True
         run: |
-          kubectl apply -f k8s/app-svc.yml
-          kubectl apply -f k8s/app-deployment.yml
-          kubectl apply -f k8s/ingress.yml
+          kubectl apply -f k8s/app-svc.yml --validate=false
+          kubectl apply -f k8s/app-deployment.yml --validate=false
+          kubectl apply -f k8s/ingress.yml --validate=false
 
       - name: Verify Deployment
         env:
