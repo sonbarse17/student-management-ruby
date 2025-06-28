@@ -22,6 +22,11 @@ jobs:
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v3
 
+      - name: Create State Bucket
+        run: |
+          gsutil mb gs://aerial-handbook-462908-j3-terraform-state || true
+          gsutil versioning set on gs://aerial-handbook-462908-j3-terraform-state || true
+
       - name: Terraform Init
         run: terraform init
 
