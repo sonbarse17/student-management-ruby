@@ -22,12 +22,6 @@ jobs:
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v3
 
-      - name: Create State Bucket
-        run: |
-          PROJECT_ID=$(gcloud config get-value project)
-          gcloud storage buckets create gs://$PROJECT_ID-terraform-state --location=us-central1 || true
-          gcloud storage buckets update gs://$PROJECT_ID-terraform-state --versioning || true
-
       - name: Terraform Init
         run: |
           PROJECT_ID=$(gcloud config get-value project)
