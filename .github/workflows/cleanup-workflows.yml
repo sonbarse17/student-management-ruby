@@ -6,6 +6,10 @@ on:
     types: [completed]
   workflow_dispatch: # Manual trigger
 
+permissions:
+  actions: write
+  contents: read
+
 jobs:
   cleanup:
     runs-on: ubuntu-latest
