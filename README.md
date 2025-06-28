@@ -125,7 +125,7 @@ docker run -d --name rails-app -p 3000:3000 --link postgres-db:db student-app
 
 ## CI/CD Architecture
 
-![CI/CD Pipeline Architecture](/docs/ci-cd-pipeline.svg)
+![CI/CD Pipeline Architecture](./docs/ci-cd-pipeline.svg)
 
 The CI/CD pipeline consists of the following workflows:
 
