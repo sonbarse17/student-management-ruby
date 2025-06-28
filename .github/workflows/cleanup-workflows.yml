@@ -43,4 +43,3 @@ jobs:
               fi
             done
           done
-if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
