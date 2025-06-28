@@ -40,9 +40,10 @@ jobs:
         env:
           USE_GKE_GCLOUD_AUTH_PLUGIN: True
         run: |
-          gcloud container clusters get-credentials ${{ secrets.GKE_CLUSTER_NAME }} \
-            --region ${{ secrets.GCP_REGION }} \
-            --project ${{ secrets.GCP_PROJECT_ID }}
+          PROJECT_ID=$(gcloud config get-value project)
+          gcloud container clusters get-credentials my-gke-cluster \
+            --region us-central1 \
+            --project $PROJECT_ID
 
       - name: Create Rails Master Key Secret
         env:
@@ -143,9 +144,10 @@ jobs:
         env:
           USE_GKE_GCLOUD_AUTH_PLUGIN: True
         run: |
-          gcloud container clusters get-credentials ${{ secrets.GKE_CLUSTER_NAME }} \
-            --region ${{ secrets.GCP_REGION }} \
-            --project ${{ secrets.GCP_PROJECT_ID }}
+          PROJECT_ID=$(gcloud config get-value project)
+          gcloud container clusters get-credentials my-gke-cluster \
+            --region us-central1 \
+            --project $PROJECT_ID
 
       - name: Destroy Kubernetes Resources
         env:
