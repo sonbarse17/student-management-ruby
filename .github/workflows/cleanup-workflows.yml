@@ -1,0 +1,48 @@
+name: Cleanup Workflow Runs
+
+on:
+  workflow_run:
+    workflows: ["Terraform Destroy (GCP)"]
+    types:
+      - completed
+    branches:
+      - main
+  workflow_dispatch:     # Allow manual trigger
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    steps:
+      - name: Delete workflow runs
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Get all workflow IDs
+          WORKFLOWS=$(gh api repos/${{ github.repository }}/actions/workflows | jq -r '.workflows[].id')
+          
+          for workflow_id in $WORKFLOWS
+          do
+            echo "Cleaning workflow ID: $workflow_id"
+            
+            # Get runs for this workflow, sorted by date
+            RUNS=$(gh api repos/${{ github.repository }}/actions/workflows/$workflow_id/runs \
+                   --paginate \
+                   -q '.workflow_runs[] | select(.status=="completed") | .id' | sort -nr)
+            
+            # Keep count of runs processed
+            count=0
+            
+            # Process each run
+            for run_id in $RUNS
+            do
+              count=$((count + 1))
+              
+              # Keep only the 2 most recent runs
+              if [ $count -gt 2 ]
+              then
+                echo "Deleting run $run_id"
+                gh api repos/${{ github.repository }}/actions/runs/$run_id -X DELETE
+              fi
+            done
+          done
