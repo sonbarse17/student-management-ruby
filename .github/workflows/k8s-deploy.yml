@@ -6,11 +6,20 @@ on:
     types:
       - completed
   workflow_dispatch: # Manual trigger
+    inputs:
+      action:
+        description: 'Choose action'
+        required: true
+        default: 'deploy'
+        type: choice
+        options:
+        - deploy
+        - destroy
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    if: ${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'deploy') || github.event.workflow_run.conclusion == 'success' }}
 
     steps:
       - name: Checkout Code
@@ -74,3 +83,44 @@ jobs:
           kubectl wait --for=jsonpath='{.status.loadBalancer.ingress[0].ip}' ingress/rails-ingress --timeout=300s
           echo "\nApplication is accessible at:"
           echo "http://$(kubectl get ingress rails-ingress -o jsonpath='{.status.loadBalancer.ingress[0].ip}')/"
+
+  destroy:
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'destroy' }}
+    
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: '${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}'
+
+      - name: Setup gcloud CLI
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Install gke-gcloud-auth-plugin
+        run: gcloud components install gke-gcloud-auth-plugin --quiet
+
+      - name: Configure kubectl
+        env:
+          USE_GKE_GCLOUD_AUTH_PLUGIN: True
+        run: |
+          gcloud container clusters get-credentials my-gke-cluster \
+            --region us-central1 \
+            --project aerial-handbook-462908-j3
+
+      - name: Destroy Kubernetes Resources
+        env:
+          USE_GKE_GCLOUD_AUTH_PLUGIN: True
+        run: |
+          echo "Destroying all Kubernetes resources..."
+          kubectl delete -f k8s/ingress.yml --ignore-not-found=true
+          kubectl delete -f k8s/app-deployment.yml --ignore-not-found=true
+          kubectl delete -f k8s/app-svc.yml --ignore-not-found=true
+          kubectl delete -f k8s/db-deploy.yml --ignore-not-found=true
+          kubectl delete -f k8s/db-svc.yml --ignore-not-found=true
+          kubectl delete -f k8s/db-pvc.yml --ignore-not-found=true
+          kubectl delete secret rails-master-key --ignore-not-found=true
+          echo "All resources destroyed successfully!"
