@@ -3,14 +3,13 @@ name: Cleanup Workflow Runs
 on:
   workflow_run:
     workflows: ["Terraform Destroy (GCP)"]
-    types:
-      - completed
-  workflow_dispatch:     # Allow manual trigger
+    types: [completed]
+  workflow_dispatch: # Manual trigger
 
 jobs:
   cleanup:
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
     steps:
       - name: Delete workflow runs
         env:
@@ -44,3 +43,4 @@ jobs:
               fi
             done
           done
+if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
