@@ -24,13 +24,15 @@ jobs:
 
       - name: Create State Bucket
         run: |
-          gsutil mb gs://${{ secrets.GCP_PROJECT_ID }}-terraform-state || true
-          gsutil versioning set on gs://${{ secrets.GCP_PROJECT_ID }}-terraform-state || true
+          PROJECT_ID=$(gcloud config get-value project)
+          gsutil mb gs://$PROJECT_ID-terraform-state || true
+          gsutil versioning set on gs://$PROJECT_ID-terraform-state || true
 
       - name: Terraform Init
         run: |
+          PROJECT_ID=$(gcloud config get-value project)
           terraform init \
-            -backend-config="bucket=${{ secrets.GCP_PROJECT_ID }}-terraform-state" \
+            -backend-config="bucket=$PROJECT_ID-terraform-state" \
             -backend-config="prefix=gke/state"
 
       - name: Terraform Apply
