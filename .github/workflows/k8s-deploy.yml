@@ -25,7 +25,8 @@ jobs:
 
       - name: Install gke-gcloud-auth-plugin
         run: |
-          gcloud components install gke-gcloud-auth-plugin
+          sudo apt-get update
+          sudo apt-get install -y google-cloud-sdk-gke-gcloud-auth-plugin
 
       - name: Configure kubectl
         env:
@@ -41,7 +42,7 @@ jobs:
         run: |
           kubectl create secret generic rails-master-key \
             --from-file=master.key=config/master.key \
-            --dry-run=client -o yaml | kubectl apply -f - --validate=false
+            --dry-run=client -o yaml --validate=false | kubectl apply -f - --validate=false
 
       - name: Deploy Database
         env:
