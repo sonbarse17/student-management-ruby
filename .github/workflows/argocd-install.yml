@@ -36,12 +36,20 @@ jobs:
             --region us-central1 \
             --project $PROJECT_ID
 
+      - name: Cleanup Existing ArgoCD
+        env:
+          USE_GKE_GCLOUD_AUTH_PLUGIN: True
+        run: |
+          echo "Cleaning up existing ArgoCD resources..."
+          kubectl delete namespace argocd --ignore-not-found=true
+          kubectl wait --for=delete namespace/argocd --timeout=60s || true
+
       - name: Install ArgoCD with Helm
         env:
           USE_GKE_GCLOUD_AUTH_PLUGIN: True
         run: |
           echo "Installing ArgoCD with Helm..."
-          kubectl create namespace argocd --dry-run=client -o yaml | kubectl apply -f -
+          kubectl create namespace argocd
           
           helm repo add argo https://argoproj.github.io/argo-helm
           helm repo update
