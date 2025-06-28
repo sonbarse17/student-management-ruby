@@ -24,11 +24,14 @@ jobs:
 
       - name: Create State Bucket
         run: |
-          gsutil mb gs://aerial-handbook-462908-j3-terraform-state || true
-          gsutil versioning set on gs://aerial-handbook-462908-j3-terraform-state || true
+          gsutil mb gs://${{ secrets.GCP_PROJECT_ID }}-terraform-state || true
+          gsutil versioning set on gs://${{ secrets.GCP_PROJECT_ID }}-terraform-state || true
 
       - name: Terraform Init
-        run: terraform init
+        run: |
+          terraform init \
+            -backend-config="bucket=${{ secrets.GCP_PROJECT_ID }}-terraform-state" \
+            -backend-config="prefix=gke/state"
 
       - name: Terraform Apply
         run: terraform apply -auto-approve

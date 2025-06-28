@@ -1,8 +1,5 @@
 terraform {
-  backend "gcs" {
-    bucket = "aerial-handbook-462908-j3-terraform-state"
-    prefix = "gke/state"
-  }
+  backend "gcs" {}
 }
 
 provider "google" {
