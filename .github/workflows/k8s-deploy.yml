@@ -76,11 +76,6 @@ jobs:
           kubectl apply -f k8s/app-deployment.yml --validate=false
           kubectl apply -f k8s/ingress.yml --validate=false
 
-      - name: Skip ArgoCD Installation
-        run: |
-          echo "ArgoCD installation skipped due to RBAC permissions."
-          echo "Install ArgoCD manually with cluster admin permissions if needed."
-
       - name: Verify Deployment
         env:
           USE_GKE_GCLOUD_AUTH_PLUGIN: True
@@ -91,16 +86,24 @@ jobs:
           kubectl get svc
           echo "\nIngress status and IP:"
           kubectl get ingress
-          echo "\nWaiting for external IP (may take a few minutes)..."
-          kubectl wait --for=jsonpath='{.status.loadBalancer.ingress[0].ip}' ingress/rails-ingress --timeout=300s
-          echo "\nApplication is accessible at:"
-          echo "http://$(kubectl get ingress rails-ingress -o jsonpath='{.status.loadBalancer.ingress[0].ip}')/"
+          echo "\nWaiting for external IP (may take 10-15 minutes)..."
+          kubectl wait --for=jsonpath='{.status.loadBalancer.ingress[0].ip}' ingress/rails-ingress --timeout=300s || true
+          
+          echo "\nCurrent ingress status:"
+          kubectl get ingress rails-ingress -o wide
+          
+          EXTERNAL_IP=$(kubectl get ingress rails-ingress -o jsonpath='{.status.loadBalancer.ingress[0].ip}' 2>/dev/null || echo "")
+          if [ -n "$EXTERNAL_IP" ]; then
+            echo "\n✅ Application is accessible at: http://$EXTERNAL_IP/"
+          else
+            echo "\n⏳ External IP not ready yet. Check ingress status in a few minutes:"
+            echo "kubectl get ingress rails-ingress"
+            echo "\nOnce ready, access at: http://EXTERNAL_IP/"
+          fi
           
           echo "\n================================="
           echo "Deployment Complete!"
           echo "================================="
-          echo "Note: ArgoCD installation requires cluster admin permissions."
-          echo "Install manually if needed with proper RBAC permissions."
 
   destroy:
     runs-on: ubuntu-latest

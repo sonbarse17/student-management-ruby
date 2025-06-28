@@ -1,0 +1,132 @@
+<svg width="1200" height="800" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="1200" height="800" fill="#f8f9fa"/>
+  
+  <!-- Title -->
+  <text x="600" y="30" text-anchor="middle" font-size="24" font-weight="bold" fill="#2c3e50">Student Management System - GKE Architecture</text>
+  
+  <!-- GitHub Actions Section -->
+  <rect x="50" y="60" width="1100" height="80" fill="#24292e" rx="10"/>
+  <text x="600" y="85" text-anchor="middle" font-size="16" font-weight="bold" fill="white">GitHub Actions CI/CD Pipeline</text>
+  <text x="600" y="110" text-anchor="middle" font-size="14" fill="#87ceeb">Code Push → Docker Build → Terraform Plan → Manual Deploy → ArgoCD</text>
+  
+  <!-- Arrow from GitHub to GCP -->
+  <path d="M 600 140 L 600 170" stroke="#34495e" stroke-width="3" marker-end="url(#arrowhead)"/>
+  
+  <!-- Google Cloud Platform Container -->
+  <rect x="50" y="180" width="1100" height="550" fill="#4285f4" fill-opacity="0.1" stroke="#4285f4" stroke-width="2" rx="15"/>
+  <text x="70" y="205" font-size="18" font-weight="bold" fill="#4285f4">Google Cloud Platform</text>
+  
+  <!-- GKE Cluster Container -->
+  <rect x="100" y="230" width="1000" height="400" fill="#34a853" fill-opacity="0.1" stroke="#34a853" stroke-width="2" rx="10"/>
+  <text x="120" y="255" font-size="16" font-weight="bold" fill="#34a853">GKE Cluster (my-gke-cluster)</text>
+  
+  <!-- Rails App Pod -->
+  <rect x="150" y="280" width="200" height="120" fill="#dc3545" fill-opacity="0.2" stroke="#dc3545" stroke-width="2" rx="8"/>
+  <text x="250" y="305" text-anchor="middle" font-size="14" font-weight="bold" fill="#dc3545">Rails Application</text>
+  <text x="250" y="325" text-anchor="middle" font-size="12" fill="#6c757d">3 Replicas</text>
+  <text x="250" y="345" text-anchor="middle" font-size="11" fill="#6c757d">Port: 3000</text>
+  <text x="250" y="360" text-anchor="middle" font-size="11" fill="#6c757d">Image: ruby-app:latest</text>
+  <text x="250" y="375" text-anchor="middle" font-size="11" fill="#6c757d">CPU: 500m, Memory: 512Mi</text>
+  
+  <!-- PostgreSQL Pod -->
+  <rect x="400" y="280" width="200" height="120" fill="#336791" fill-opacity="0.2" stroke="#336791" stroke-width="2" rx="8"/>
+  <text x="500" y="305" text-anchor="middle" font-size="14" font-weight="bold" fill="#336791">PostgreSQL</text>
+  <text x="500" y="325" text-anchor="middle" font-size="12" fill="#6c757d">StatefulSet</text>
+  <text x="500" y="345" text-anchor="middle" font-size="11" fill="#6c757d">Port: 5432</text>
+  <text x="500" y="360" text-anchor="middle" font-size="11" fill="#6c757d">Image: ruby-db:latest</text>
+  <text x="500" y="375" text-anchor="middle" font-size="11" fill="#6c757d">CPU: 500m, Memory: 1Gi</text>
+  
+  <!-- ArgoCD Pod -->
+  <rect x="650" y="280" width="200" height="120" fill="#ff6b35" fill-opacity="0.2" stroke="#ff6b35" stroke-width="2" rx="8"/>
+  <text x="750" y="305" text-anchor="middle" font-size="14" font-weight="bold" fill="#ff6b35">ArgoCD</text>
+  <text x="750" y="325" text-anchor="middle" font-size="12" fill="#6c757d">Optional</text>
+  <text x="750" y="345" text-anchor="middle" font-size="11" fill="#6c757d">Port: 80/443</text>
+  <text x="750" y="360" text-anchor="middle" font-size="11" fill="#6c757d">Helm Chart</text>
+  <text x="750" y="375" text-anchor="middle" font-size="11" fill="#6c757d">GitOps Ready</text>
+  
+  <!-- Services Layer -->
+  <rect x="150" y="420" width="200" height="60" fill="#28a745" fill-opacity="0.2" stroke="#28a745" stroke-width="2" rx="5"/>
+  <text x="250" y="440" text-anchor="middle" font-size="12" font-weight="bold" fill="#28a745">ClusterIP Service</text>
+  <text x="250" y="455" text-anchor="middle" font-size="11" fill="#6c757d">app-service:80</text>
+  <text x="250" y="470" text-anchor="middle" font-size="11" fill="#6c757d">→ targetPort:3000</text>
+  
+  <rect x="400" y="420" width="200" height="60" fill="#28a745" fill-opacity="0.2" stroke="#28a745" stroke-width="2" rx="5"/>
+  <text x="500" y="440" text-anchor="middle" font-size="12" font-weight="bold" fill="#28a745">ClusterIP Service</text>
+  <text x="500" y="455" text-anchor="middle" font-size="11" fill="#6c757d">db-service:5432</text>
+  <text x="500" y="470" text-anchor="middle" font-size="11" fill="#6c757d">→ targetPort:5432</text>
+  
+  <rect x="650" y="420" width="200" height="60" fill="#ffc107" fill-opacity="0.2" stroke="#ffc107" stroke-width="2" rx="5"/>
+  <text x="750" y="440" text-anchor="middle" font-size="12" font-weight="bold" fill="#ffc107">LoadBalancer</text>
+  <text x="750" y="455" text-anchor="middle" font-size="11" fill="#6c757d">argocd-server</text>
+  <text x="750" y="470" text-anchor="middle" font-size="11" fill="#6c757d">External IP</text>
+  
+  <!-- Ingress -->
+  <rect x="150" y="500" width="450" height="60" fill="#17a2b8" fill-opacity="0.2" stroke="#17a2b8" stroke-width="2" rx="5"/>
+  <text x="375" y="520" text-anchor="middle" font-size="14" font-weight="bold" fill="#17a2b8">GCE Ingress Controller</text>
+  <text x="375" y="535" text-anchor="middle" font-size="11" fill="#6c757d">External Load Balancer • SSL Termination • Health Checks</text>
+  <text x="375" y="550" text-anchor="middle" font-size="11" fill="#6c757d">Path: / → app-service:80</text>
+  
+  <!-- Storage -->
+  <rect x="400" y="580" width="200" height="40" fill="#6f42c1" fill-opacity="0.2" stroke="#6f42c1" stroke-width="2" rx="5"/>
+  <text x="500" y="595" text-anchor="middle" font-size="12" font-weight="bold" fill="#6f42c1">Persistent Volume</text>
+  <text x="500" y="610" text-anchor="middle" font-size="11" fill="#6c757d">30Gi • standard • RWO</text>
+  
+  <!-- Terraform State -->
+  <rect x="900" y="280" width="180" height="80" fill="#623ce4" fill-opacity="0.2" stroke="#623ce4" stroke-width="2" rx="5"/>
+  <text x="990" y="305" text-anchor="middle" font-size="12" font-weight="bold" fill="#623ce4">Terraform State</text>
+  <text x="990" y="320" text-anchor="middle" font-size="11" fill="#6c757d">GCS Bucket</text>
+  <text x="990" y="335" text-anchor="middle" font-size="11" fill="#6c757d">Versioning Enabled</text>
+  <text x="990" y="350" text-anchor="middle" font-size="11" fill="#6c757d">us-central1</text>
+  
+  <!-- External Access Section -->
+  <rect x="50" y="750" width="1100" height="40" fill="#6c757d" fill-opacity="0.1" stroke="#6c757d" stroke-width="1" rx="5"/>
+  <text x="600" y="770" text-anchor="middle" font-size="14" font-weight="bold" fill="#495057">External Access</text>
+  <text x="300" y="785" text-anchor="middle" font-size="12" fill="#6c757d">Internet → GCE LB → Rails App</text>
+  <text x="900" y="785" text-anchor="middle" font-size="12" fill="#6c757d">ArgoCD → LoadBalancer → External IP</text>
+  
+  <!-- Connection Lines -->
+  <!-- Rails to Service -->
+  <path d="M 250 400 L 250 420" stroke="#28a745" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <!-- DB to Service -->
+  <path d="M 500 400 L 500 420" stroke="#28a745" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <!-- ArgoCD to Service -->
+  <path d="M 750 400 L 750 420" stroke="#ffc107" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <!-- Service to Ingress -->
+  <path d="M 250 480 L 250 500" stroke="#17a2b8" stroke-width="2" marker-end="url(#arrowhead)"/>
+  <!-- DB to Storage -->
+  <path d="M 500 480 L 500 580" stroke="#6f42c1" stroke-width="2" marker-end="url(#arrowhead)"/>
+  
+  <!-- Database connection line -->
+  <path d="M 350 340 L 400 340" stroke="#6c757d" stroke-width="2" stroke-dasharray="5,5"/>
+  <text x="375" y="335" text-anchor="middle" font-size="10" fill="#6c757d">DB Connection</text>
+  
+  <!-- Legend -->
+  <rect x="900" y="400" width="180" height="160" fill="white" stroke="#dee2e6" stroke-width="1" rx="5"/>
+  <text x="990" y="420" text-anchor="middle" font-size="14" font-weight="bold" fill="#495057">Legend</text>
+  
+  <rect x="910" y="430" width="15" height="15" fill="#dc3545" fill-opacity="0.2" stroke="#dc3545"/>
+  <text x="935" y="442" font-size="11" fill="#495057">Rails Application</text>
+  
+  <rect x="910" y="450" width="15" height="15" fill="#336791" fill-opacity="0.2" stroke="#336791"/>
+  <text x="935" y="462" font-size="11" fill="#495057">PostgreSQL DB</text>
+  
+  <rect x="910" y="470" width="15" height="15" fill="#28a745" fill-opacity="0.2" stroke="#28a745"/>
+  <text x="935" y="482" font-size="11" fill="#495057">ClusterIP Service</text>
+  
+  <rect x="910" y="490" width="15" height="15" fill="#17a2b8" fill-opacity="0.2" stroke="#17a2b8"/>
+  <text x="935" y="502" font-size="11" fill="#495057">Ingress Controller</text>
+  
+  <rect x="910" y="510" width="15" height="15" fill="#6f42c1" fill-opacity="0.2" stroke="#6f42c1"/>
+  <text x="935" y="522" font-size="11" fill="#495057">Persistent Storage</text>
+  
+  <rect x="910" y="530" width="15" height="15" fill="#ff6b35" fill-opacity="0.2" stroke="#ff6b35"/>
+  <text x="935" y="542" font-size="11" fill="#495057">ArgoCD (Optional)</text>
+  
+  <!-- Arrow marker definition -->
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#34495e"/>
+    </marker>
+  </defs>
+</svg>

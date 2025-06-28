@@ -4,6 +4,11 @@ A Ruby on Rails application deployed on Google Kubernetes Engine (GKE) with comp
 
 ## 🏗️ Architecture
 
+![Detailed Architecture](docs/architecture-detailed.svg)
+
+<details>
+<summary>Text-based Architecture Diagram</summary>
+
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                              GITHUB ACTIONS CI/CD                          │
