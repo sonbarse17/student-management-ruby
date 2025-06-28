@@ -29,6 +29,13 @@ spec:
         - name: psql-storage 
           mountPath: /var/lib/postgresql/data
           subPath: postgres
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
   volumeClaimTemplates:
   - metadata:
       name: psql-storage

@@ -57,10 +57,13 @@ jobs:
         env:
           USE_GKE_GCLOUD_AUTH_PLUGIN: True
         run: |
-          kubectl apply -f k8s/db-pvc.yml --validate=false
           kubectl apply -f k8s/db-svc.yml --validate=false
           kubectl apply -f k8s/db-deploy.yml --validate=false
           kubectl wait --for=condition=ready pod -l app=student-app-db --timeout=300s
+          
+          echo "Running database migrations..."
+          kubectl apply -f k8s/db-init-job.yml --validate=false
+          kubectl wait --for=condition=complete job/db-migration --timeout=300s
 
       - name: Deploy Application
         env:
@@ -134,7 +137,7 @@ jobs:
           kubectl delete -f k8s/app-svc.yml --ignore-not-found=true
           kubectl delete -f k8s/db-deploy.yml --ignore-not-found=true
           kubectl delete -f k8s/db-svc.yml --ignore-not-found=true
-          kubectl delete -f k8s/db-pvc.yml --ignore-not-found=true
+          kubectl delete -f k8s/db-init-job.yml --ignore-not-found=true
           kubectl delete secret rails-master-key --ignore-not-found=true
           
           echo "Destroying ArgoCD..."
