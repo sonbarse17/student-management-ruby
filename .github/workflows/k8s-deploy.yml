@@ -26,21 +26,26 @@ jobs:
       - name: Install gke-gcloud-auth-plugin
         run: |
           gcloud components install gke-gcloud-auth-plugin
-          export USE_GKE_GCLOUD_AUTH_PLUGIN=True
 
       - name: Configure kubectl
+        env:
+          USE_GKE_GCLOUD_AUTH_PLUGIN: True
         run: |
           gcloud container clusters get-credentials my-gke-cluster \
             --region us-central1 \
             --project aerial-handbook-462908-j3
 
       - name: Create Rails Master Key Secret
+        env:
+          USE_GKE_GCLOUD_AUTH_PLUGIN: True
         run: |
           kubectl create secret generic rails-master-key \
             --from-file=master.key=config/master.key \
             --dry-run=client -o yaml | kubectl apply -f -
 
       - name: Deploy Database
+        env:
+          USE_GKE_GCLOUD_AUTH_PLUGIN: True
         run: |
           kubectl apply -f k8s/db-pvc.yml
           kubectl apply -f k8s/db-svc.yml
@@ -48,12 +53,16 @@ jobs:
           kubectl wait --for=condition=ready pod -l app=student-app-db --timeout=300s
 
       - name: Deploy Application
+        env:
+          USE_GKE_GCLOUD_AUTH_PLUGIN: True
         run: |
           kubectl apply -f k8s/app-svc.yml
           kubectl apply -f k8s/app-deployment.yml
           kubectl apply -f k8s/ingress.yml
 
       - name: Verify Deployment
+        env:
+          USE_GKE_GCLOUD_AUTH_PLUGIN: True
         run: |
           echo "Checking deployment status..."
           kubectl get pods
