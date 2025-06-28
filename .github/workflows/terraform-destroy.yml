@@ -65,3 +65,11 @@ jobs:
             echo "Cluster still exists, deleting directly..."
             gcloud container clusters delete my-gke-cluster --region=us-central1 --project=$PROJECT_ID --quiet
           fi
+
+      - name: Delete State Bucket (Optional)
+        run: |
+          PROJECT_ID=$(gcloud config get-value project)
+          echo "WARNING: This will delete the Terraform state bucket!"
+          echo "Uncomment the next line if you want to delete it:"
+          gcloud storage rm -r gs://$PROJECT_ID-terraform-state --quiet
+          echo "State bucket gs://$PROJECT_ID-terraform-state preserved for future use"
