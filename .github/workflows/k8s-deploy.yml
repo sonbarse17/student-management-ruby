@@ -1,0 +1,55 @@
+name: Deploy to Kubernetes
+
+on:
+  workflow_run:
+    workflows: ["Terraform Apply (GCP)"]
+    types:
+      - completed
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: '${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}'
+
+      - name: Setup gcloud CLI
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Configure kubectl
+        run: |
+          gcloud container clusters get-credentials my-gke-cluster \
+            --region us-central1 \
+            --project aerial-handbook-462908-j3
+
+      - name: Create Rails Master Key Secret
+        run: |
+          kubectl create secret generic rails-master-key \
+            --from-file=master.key=config/master.key \
+            --dry-run=client -o yaml | kubectl apply -f -
+
+      - name: Deploy Database
+        run: |
+          kubectl apply -f k8s/db-pvc.yml
+          kubectl apply -f k8s/db-svc.yml
+          kubectl apply -f k8s/db-deploy.yml
+          kubectl wait --for=condition=ready pod -l app=student-app-db --timeout=300s
+
+      - name: Deploy Application
+        run: |
+          kubectl apply -f k8s/app-svc.yml
+          kubectl apply -f k8s/app-deployment.yml
+          kubectl apply -f k8s/ingress.yml
+
+      - name: Verify Deployment
+        run: |
+          kubectl get pods
+          kubectl get svc
+          kubectl get ingress
